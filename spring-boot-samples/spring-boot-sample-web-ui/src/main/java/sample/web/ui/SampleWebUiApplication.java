@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.convert.converter.Converter;
 
 @SpringBootApplication
-@EnableCaching
+//@EnableCaching
 public class SampleWebUiApplication {
 
 	@Bean
@@ -33,7 +33,12 @@ public class SampleWebUiApplication {
 
 	@Bean
 	public Converter<String, Message> messageConverter() {
-		return id -> messageRepository().findMessage(Long.valueOf(id));
+		return new Converter<String, Message>() {
+			@Override
+			public Message convert(String id) {
+				return messageRepository().findMessage(Long.valueOf(id));
+			}
+		};
 	}
 
 	public static void main(String[] args) {

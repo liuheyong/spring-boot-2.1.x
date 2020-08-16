@@ -308,12 +308,29 @@ public class SpringApplication {
 			// 准备环境environment
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, applicationArguments);
 			configureIgnoreBeanInfo(environment);
+			// 打印控制台的Banner
 			Banner printedBanner = printBanner(environment);
+
+			// TODO  创建IOC容器 ApplicationContext
 			context = createApplicationContext();
+
 			exceptionReporters = getSpringFactoriesInstances(SpringBootExceptionReporter.class, new Class[] { ConfigurableApplicationContext.class }, context);
+
+			/*
+			 * 准备上下文环境，将environment保存到IOC容器中
+			 */
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
+
+			/*
+			 * 刷新容器：IOC容器的初始化（如果是web应用，创建内嵌的tomcat）
+			 */
 			refreshContext(context);
+
+			/*
+			 * IOC容器创建完毕、执行一些回调
+			 */
 			afterRefresh(context, applicationArguments);
+
 			stopWatch.stop();
 			if (this.logStartupInfo) {
 				new StartupInfoLogger(this.mainApplicationClass).logStarted(getApplicationLog(), stopWatch);
@@ -332,6 +349,7 @@ public class SpringApplication {
 			handleRunFailure(context, ex, exceptionReporters, null);
 			throw new IllegalStateException(ex);
 		}
+		// 所有执行完，返回IOC容器
 		return context;
 	}
 
@@ -578,9 +596,7 @@ public class SpringApplication {
 				}
 			}
 			catch (ClassNotFoundException ex) {
-				throw new IllegalStateException(
-						"Unable create a default ApplicationContext, " + "please specify an ApplicationContextClass",
-						ex);
+				throw new IllegalStateException("Unable create a default ApplicationContext, " + "please specify an ApplicationContextClass", ex);
 			}
 		}
 		return (ConfigurableApplicationContext) BeanUtils.instantiateClass(contextClass);
